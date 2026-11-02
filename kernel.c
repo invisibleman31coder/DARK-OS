@@ -17,6 +17,27 @@ void clear_screen(){for(int i=0;i<80*25;i++)vga_buffer[i]=0x0F00|' ';cursor_row=
 int strcmp(const char* a,const char* b){int i=0;while(a[i]&&b[i]&&a[i]==b[i])i++;return a[i]-b[i];}
 int strncmp(const char* a,const char* b,int n){for(int i=0;i<n;i++){if(a[i]!=b[i]||!a[i])return a[i]-b[i];}return 0;}
 int strlen(const char* s){int i=0;while(s[i])i++;return i;}
+void strcpy(char* d, const char* s){int i=0;while(s[i]){d[i]=s[i];i++;}d[i]=0;}
+
+struct File { char name[32]; char content[128]; };
+struct File files[3];
+
+void fs_init(){
+    strcpy(files[0].name, "readme.txt");
+    strcpy(files[0].content, "ZED-OS v2.6 - In-memory FS");
+    strcpy(files[1].name, "about.txt");
+    strcpy(files[1].content, "Built by ZED - custom x86 OS");
+    strcpy(files[2].name, "version.txt");
+    strcpy(files[2].content, "ZED-OS v2.6");
+}
+void fs_list(){
+    print_string("Files:\n");
+    for(int i=0;i<3;i++){ print_string("  - "); print_string(files[i].name); print_string("\n"); }
+}
+void fs_read(const char* name){
+    for(int i=0;i<3;i++){ if(strcmp(files[i].name,name)==0){ print_string(files[i].content); print_string("\n"); return; } }
+    print_string("File not found\n");
+}
 
 char get_key(){
     unsigned char scancode;
@@ -36,9 +57,11 @@ void shell(){
         char c=get_key();
         if(c=='\n'){
             buffer[idx]=0; put_char('\n');
-            if(strcmp(buffer,"help")==0) print_string("Commands: help, clear, version, echo <text>\n");
+            if(strcmp(buffer,"help")==0) print_string("Commands: help, clear, version, echo <text>, ls, cat <file>\n");
             else if(strcmp(buffer,"clear")==0) clear_screen();
-            else if(strcmp(buffer,"version")==0) print_string("ZED-OS v2.5\n");
+            else if(strcmp(buffer,"version")==0) print_string("ZED-OS v2.6\n");
+            else if(strcmp(buffer,"ls")==0) fs_list();
+            else if(strncmp(buffer,"cat ",4)==0) fs_read(buffer+4);
             else if(strncmp(buffer,"echo ",5)==0) { print_string(buffer+5); put_char('\n'); }
             else if(buffer[0]!=0) print_string("Unknown: type 'help'\n");
             idx=0; print_string("> ");
@@ -49,7 +72,8 @@ void shell(){
 
 void kernel_main(){
     clear_screen();
-    print_string("ZED-OS v2.5 Booted\n");
+    fs_init();
+    print_string("ZED-OS v2.6 Booted\n");
     print_string("Type 'help' for commands\n");
     shell();
 }
