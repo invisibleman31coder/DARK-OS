@@ -55,10 +55,10 @@ qemu-system-i386 -drive format=raw,file=zedos.img
 
 ## Screenshots
 
-Add screenshots of:
-- Boot process
-- Shell interface
-- Command execution
+screenshots/boot.png
+
+screenshots/shell.png
+
 
 ## Roadmap
 
