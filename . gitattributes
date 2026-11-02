@@ -1,15 +1,7 @@
-# Mark legacy simulation as vendored (excluded from language stats)
+# Exclude legacy prototype from language stats
 legacy/** linguist-vendored
-legacy/* linguist-vendored
-legacy/**/* linguist-vendored
-
-# Exclude Python simulation from language detection
 *.py linguist-vendored
-*.py linguist-documentation
-*.py linguist-detectable=false
-*.py linguist-language=Python
-linguist-vendored
 
-# Ensure core OS languages are detected
-*.asm linguist-detectable=true
-*.c linguist-detectable=true
+# Force core OS detection
+*.asm linguist-language=Assembly
+*.c linguist-language=C
