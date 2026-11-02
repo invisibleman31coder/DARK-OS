@@ -1,15 +1,17 @@
 all: ZED-OS.img
+
 bootloader.bin: bootloader.asm
 	nasm -f bin bootloader.asm -o bootloader.bin
+
 kernel.o: kernel.c
-	i686-elf-gcc -ffreestanding -c kernel.c -o kernel.o
-keyboard.o: keyboard.c
-	i686-elf-gcc -ffreestanding -c keyboard.c -o keyboard.o
-kernel.bin: kernel.o keyboard.o linker.ld
-	i686-elf-ld -o kernel.bin -T linker.ld kernel.o keyboard.o --oformat binary
+	gcc -m32 -ffreestanding -c kernel.c -o kernel.o -fno-pie -fno-stack-protector
+
+kernel.bin: kernel.o
+	ld -m elf_i386 -T linker.ld -o kernel.bin kernel.o --oformat binary -nostdlib
+
 ZED-OS.img: bootloader.bin kernel.bin
 	cat bootloader.bin kernel.bin > ZED-OS.img
-run: ZED-OS.img
-	qemu-system-i386 -fda ZED-OS.img
+	truncate -s 1474560 ZED-OS.img
+
 clean:
 	rm -f *.bin *.o *.img
