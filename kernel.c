@@ -1,59 +1,75 @@
-// ZED-OS v2.2 - Kernel Entry
-// Custom x86 kernel in C
-
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
-#define VGA_ADDRESS 0xB8000
+#define VGA_MEMORY 0xB8000
 
-static unsigned short* vga_buffer = (unsigned short*)VGA_ADDRESS;
-static int cursor_x = 0;
-static int cursor_y = 0;
+static unsigned short* const vga_buffer = (unsigned short*) VGA_MEMORY;
+static int cursor_row = 0;
+static int cursor_col = 0;
+
+static unsigned char port_in(unsigned short port) {
+    unsigned char result;
+    __asm__ volatile ("inb %1, %0" : "=a" (result) : "Nd" (port));
+    return result;
+}
 
 void put_char(char c) {
-    if (c == '\n') {
-        cursor_x = 0;
-        cursor_y++;
-        if (cursor_y >= VGA_HEIGHT) cursor_y = 0;
-        return;
+    if (c == '\n') { cursor_row++; cursor_col = 0; }
+    else if (c == '\b') {
+        if (cursor_col > 0) { cursor_col--; vga_buffer[cursor_row*80+cursor_col] = 0x0F00 | ' '; }
+    } else {
+        vga_buffer[cursor_row*80+cursor_col] = 0x0F00 | c;
+        cursor_col++;
+        if (cursor_col >= 80) { cursor_col = 0; cursor_row++; }
     }
-    unsigned short entry = (0x0F << 8) | c;
-    vga_buffer[cursor_y * VGA_WIDTH + cursor_x] = entry;
-    cursor_x++;
-    if (cursor_x >= VGA_WIDTH) {
-        cursor_x = 0;
-        cursor_y++;
-    }
+    if (cursor_row >= 25) { cursor_row = 24; }
 }
 
-void print_string(const char* str) {
-    while (*str) {
-        put_char(*str++);
-    }
-}
+void print_string(const char* str) { for(int i=0; str[i]; i++) put_char(str[i]); }
 
 void clear_screen() {
-    for (int y = 0; y < VGA_HEIGHT; y++) {
-        for (int x = 0; x < VGA_WIDTH; x++) {
-            vga_buffer[y * VGA_WIDTH + x] = (0x0F << 8) | ' ';
-        }
-    }
-    cursor_x = 0;
-    cursor_y = 0;
+    for(int i=0;i<80*25;i++) vga_buffer[i]=0x0F00 | ' ';
+    cursor_row=0; cursor_col=0;
 }
 
-// Kernel entry point - called from bootloader.asm
+int strcmp(const char* a, const char* b){ int i=0; while(a[i]&&b[i]&&a[i]==b[i])i++; return a[i]-b[i]; }
+
+char get_key() {
+    unsigned char scancode;
+    while(1){
+        while(!(port_in(0x64) & 1));
+        scancode = port_in(0x60);
+        if(scancode & 0x80) continue;
+        static const char map[128] = {
+            0,0,'1','2','3','4','5','6','7','8','9','0','-','=', '\b',
+            '\t','q','w','e','r','t','y','u','i','o','p','[',']','\n',
+            0,'a','s','d','f','g','h','j','k','l',';','\'','`',0,
+            '\\','z','x','c','v','b','n','m',',','.','/',0,0,0,' '
+        };
+        if(scancode < 128 && map[scancode]) return map[scancode];
+    }
+}
+
+void shell() {
+    char buffer[128];
+    int idx=0;
+    print_string("\n> ");
+    while(1){
+        char c = get_key();
+        if(c == '\n'){
+            buffer[idx]=0; put_char('\n');
+            if(strcmp(buffer,"help")==0) print_string("Commands: help, clear, echo, version\n");
+            else if(strcmp(buffer,"clear")==0) clear_screen();
+            else if(strcmp(buffer,"version")==0) print_string("ZED-OS v2.4\n");
+            else if(buffer[0]!=0) print_string("Unknown command\n");
+            idx=0; print_string("> ");
+        } else if(c=='\b'){ if(idx>0){ idx--; put_char(c);} }
+        else { if(idx<127){ buffer[idx++]=c; put_char(c);} }
+    }
+}
+
 void kernel_main() {
     clear_screen();
-    print_string("ZED-OS v2.2 - Real x86 OS from Scratch\n");
-    print_string("Custom Bootloader + C Kernel\n");
-    print_string("--------------------------------\n");
-    print_string("System booted successfully.\n");
-    print_string("VGA driver: OK\n");
-    print_string("Paging: Initialized\n");
-    print_string("\n");
-
-    // Halt loop
-    while (1) {
-        __asm__ volatile ("hlt");
-    }
+    print_string("ZED-OS v2.4 Booted\n");
+    print_string("Type 'help' for commands\n");
+    shell();
 }
