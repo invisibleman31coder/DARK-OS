@@ -1,33 +1,16 @@
-# GHOST // ZED-OS DUAL BRAIN EDITION
-**AUTONOMOUS • AI • SELF-BUILDING OS**
-> Built by **invisibleman31coder**
+# ZED-OS v2.2 — Real x86 OS from Scratch
 
-![ZED-OS](assets/logos/logo-v2-purple.jpg)
+**Built entirely on a phone in Durban, SA. From Python simulation → Bootable OS in C + ASM.**
 
-### Brain System
-- ONLINE: Groq AI (fast)
-- OFFLINE: Smart Brain + Self-Builder (NO DATA NEEDED)
+> Boots in QEMU. No Linux. Just bootloader + kernel.
 
-### Features
-- Works 100% offline
-- Self-building tools
-- Dual brain auto-switch
-- Termux native
+### What it is
+- `bootloader.asm` — 16-bit → 32-bit protected mode (0x7C00)
+- `kernel.c` — VGA driver, paging, shell
+- `linker.ld` + `Makefile` — builds bootable ISO
+- `legacy/` — v2.1 Internet OS (Python)
 
-### Tools: 3 ACTIVE
-- smart_offline_brain.py
-- build_self_builder.py
-- password_generator.py
-
-### Run
-python zed.py
-
-### Structure
-ZED-OS/
-- zed.py (main)
-- modules/offline_tools/
-- assets/logos/
-- memory/
-- vault/
-
-Saider AI - ZED-OS Autonomous System
+### Build
+```bash
+make
+make run  # needs qemu-system-i386
