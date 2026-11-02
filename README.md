@@ -1,28 +1,11 @@
-# ZED-OS v2.2 — Real x86 Operating System from Scratch
+# ZED-OS v2.5
 
-ZED-OS is a custom x86 operating system written from scratch in C and Assembly. No Linux dependencies. Boots directly in QEMU from a custom bootloader.
+Lightweight x86 operating system written in C and x86 Assembly. Custom bootloader, freestanding kernel.
 
-> Boots in QEMU. Custom bootloader + C kernel.
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![C](https://img.shields.io/badge/C-100%25-blue)
 
-### Architecture
+## Overview
+ZED-OS boots from bare metal into a fully interactive shell with keyboard input and VGA output.
 
-- `bootloader.asm` — 16-bit real mode to 32-bit protected mode bootloader (0x7C00), GDT setup
-- `kernel.c` — VGA text-mode driver, memory paging, basic shell
-- `linker.ld` — ELF linker script for kernel entry point
-- `Makefile` — Build system for bootable ISO image
-- `legacy/` — ZED-OS v2.1 Internet OS simulation (archived)
-
-### Features (v2.2)
-
-- Custom boot sector
-- Protected mode transition
-- VGA driver
-- Memory paging initialization
-- Buildable ISO image
-
-### Build & Run
-
-```bash
-make          # builds zed-os.iso
-make run      # runs in qemu-system-i386
-make clean
+### Shell Commands
