@@ -1,9 +1,11 @@
-# Exclude legacy prototype from language stats
+# Hide all Python legacy code
 legacy/** linguist-vendored=true
+legacy/**/* linguist-vendored=true
+**/*.py linguist-vendored=true
 *.py linguist-vendored=true
 *.py linguist-detectable=false
 *.pyc linguist-vendored=true
-__pycache__/ linguist-vendored=true
+__pycache__/** linguist-vendored=true
 
 # Force core OS detection
 *.asm linguist-language=Assembly
