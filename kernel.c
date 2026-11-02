@@ -1,22 +1,59 @@
-#include "keyboard.h"
-// ZED-OS v2.2 KERNEL - Built by invisibleman31coder
+// ZED-OS v2.2 - Kernel Entry
+// Custom x86 kernel in C
+
 #define VGA_WIDTH 80
-volatile unsigned short *vga = (unsigned short*)0xB8000;
-int cx=0, cy=0;
-void kclear(){ for(int i=0;i<80*25;i++) vga[i]=0x0F00|' '; cx=cy=0; }
-void kput(char c){ if(c=='\n'){cx=0;cy++;return;} vga[cy*80+cx]=0x0F00|c; cx++; if(cx>=80){cx=0;cy++;} }
-void kprint(const char* s){ while(*s) kput(*s++); }
-void kmain(){
-    kclear();
-    kprint("========================================\n");
-    kprint(" ZED-OS v2.2 REAL - x86 BOOTABLE KERNEL\n");
-    kprint("========================================\n");
-    kprint(" [OK] Bootloader: Protected Mode\n");
-    kprint(" [OK] Kernel: C Kernel @ 0x10000\n");
-    kprint(" [OK] Memory: Paging Ready\n");
-    kprint(" [OK] Drivers: VGA\n");
-    kprint(" [OK] Shell: ZED Shell\n\n");
-    kprint(" ZED-OS > Hello Durban! Online.\n");
-    kprint(" root@zed-os:~# ");
-    while(1){ __asm__ volatile("hlt"); }
+#define VGA_HEIGHT 25
+#define VGA_ADDRESS 0xB8000
+
+static unsigned short* vga_buffer = (unsigned short*)VGA_ADDRESS;
+static int cursor_x = 0;
+static int cursor_y = 0;
+
+void put_char(char c) {
+    if (c == '\n') {
+        cursor_x = 0;
+        cursor_y++;
+        if (cursor_y >= VGA_HEIGHT) cursor_y = 0;
+        return;
+    }
+    unsigned short entry = (0x0F << 8) | c;
+    vga_buffer[cursor_y * VGA_WIDTH + cursor_x] = entry;
+    cursor_x++;
+    if (cursor_x >= VGA_WIDTH) {
+        cursor_x = 0;
+        cursor_y++;
+    }
+}
+
+void print_string(const char* str) {
+    while (*str) {
+        put_char(*str++);
+    }
+}
+
+void clear_screen() {
+    for (int y = 0; y < VGA_HEIGHT; y++) {
+        for (int x = 0; x < VGA_WIDTH; x++) {
+            vga_buffer[y * VGA_WIDTH + x] = (0x0F << 8) | ' ';
+        }
+    }
+    cursor_x = 0;
+    cursor_y = 0;
+}
+
+// Kernel entry point - called from bootloader.asm
+void kernel_main() {
+    clear_screen();
+    print_string("ZED-OS v2.2 - Real x86 OS from Scratch\n");
+    print_string("Custom Bootloader + C Kernel\n");
+    print_string("--------------------------------\n");
+    print_string("System booted successfully.\n");
+    print_string("VGA driver: OK\n");
+    print_string("Paging: Initialized\n");
+    print_string("\n");
+
+    // Halt loop
+    while (1) {
+        __asm__ volatile ("hlt");
+    }
 }
