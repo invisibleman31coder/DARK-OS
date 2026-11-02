@@ -1,3 +1,5 @@
+legacy/** linguist-vendored
 legacy/* linguist-vendored
 *.py linguist-vendored
-*.md linguist-documentation
+*.py linguist-documentation
+*.py linguist-detectable=false
