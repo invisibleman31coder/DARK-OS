@@ -1,3 +1,4 @@
+#include "keyboard.h"
 // ZED-OS v2.2 KERNEL - Built by invisibleman31coder
 #define VGA_WIDTH 80
 volatile unsigned short *vga = (unsigned short*)0xB8000;
