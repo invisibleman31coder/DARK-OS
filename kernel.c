@@ -67,6 +67,24 @@ void mem_info(){
 }
 // ===== MEMORY MANAGER - END =====
 
+// ===== PAGING - START =====
+static unsigned int page_directory[1024] __attribute__((aligned(4096)));
+static unsigned int page_table[1024] __attribute__((aligned(4096)));
+
+void paging_init() {
+    for(int i=0; i<1024; i++){
+        page_directory[i] = 0x00000002;
+        page_table[i] = (i * 4096) | 3;
+    }
+    page_directory[0] = ((unsigned int)page_table) | 3;
+    __asm__ volatile("mov %0, %%cr3" :: "r"(page_directory));
+    unsigned int cr0;
+    __asm__ volatile("mov %%cr0, %0" : "=r"(cr0));
+    cr0 |= 0x80000000;
+    __asm__ volatile("mov %0, %%cr0" :: "r"(cr0));
+}
+// ===== PAGING - END =====
+
 struct File { char name[32]; char content[128]; };
 struct File files[3];
 
