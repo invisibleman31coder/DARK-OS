@@ -1,0 +1,10 @@
+// kmalloc.c - simple bump allocator to start
+static uint32_t heap_ptr = 0x100000; // 1MB mark
+
+void* kmalloc(uint32_t size) {
+    void* ptr = (void*)heap_ptr;
+    heap_ptr += size;
+    // align to 4
+    heap_ptr = (heap_ptr + 3) & ~3;
+    return ptr;
+}
