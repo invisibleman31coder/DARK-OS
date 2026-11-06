@@ -1,5 +1,4 @@
-; ============ ZED-OS v2.7 - bootloader.asm - CLEAN WHOLE FILE ============
-; Loads kernel.bin from sector 2 -> 0x10000, then jumps to kernel_main
+; ============ ZED-OS v2.7 - bootloader.asm - FIXED DRIVE ============
 [org 0x7C00]
 [bits 16]
 
@@ -12,30 +11,29 @@ start:
     mov sp, 0x7C00
     sti
 
-    ; Print "Booting.."
+    ; SAVE boot drive BIOS gave us - 0x00 = floppy, 0x80 = hard disk
+    mov [boot_drive], dl
+
     mov si, msg_boot
     call print16
 
-    ; Load kernel - 64 sectors (32KB) from sector 2 to 0x10000
-    ; ES:BX = 0x1000:0x0000 = 0x10000 physical
+    ; Load kernel - 64 sectors from sector 2 to 0x10000
     mov ax, 0x1000
     mov es, ax
     xor bx, bx
-    mov ah, 0x02      ; read sectors
-    mov al, 64        ; 64 sectors
-    mov ch, 0         ; cylinder 0
-    mov cl, 2         ; sector 2 (sector 1 = bootloader)
-    mov dh, 0         ; head 0
-    mov dl, 0x00      ; floppy drive
+    mov ah, 0x02
+    mov al, 64
+    mov ch, 0
+    mov cl, 2
+    mov dh, 0
+    mov dl, [boot_drive]  ; USE SAVED DRIVE, NOT 0x00
     int 0x13
     jc disk_error
 
-    ; Enable A20
     in al, 0x92
     or al, 2
     out 0x92, al
 
-    ; Load GDT and switch to protected mode
     cli
     lgdt [gdt_desc]
     mov eax, cr0
@@ -60,14 +58,14 @@ print16:
 .done:
     ret
 
+boot_drive db 0
 msg_boot db 'ZED-OS v2.7 Booting..', 13, 10, 0
 msg_disk db 'Disk Error!', 13, 10, 0
 
-; ---------- GDT ----------
 gdt_start:
-    dq 0x0000000000000000 ; null
-    dq 0x00CF9A000000FFFF ; code: base 0, limit 4GB, exec/read
-    dq 0x00CF92000000FFFF ; data: base 0, limit 4GB, read/write
+    dq 0x0000000000000000
+    dq 0x00CF9A000000FFFF
+    dq 0x00CF92000000FFFF
 gdt_end:
 
 gdt_desc:
@@ -83,10 +81,7 @@ protected_mode:
     mov gs, ax
     mov ss, ax
     mov esp, 0x90000
-
-    ; Jump to kernel at 0x10000 - this is kernel_main
     jmp 0x10000
-
     hlt
     jmp $
 
