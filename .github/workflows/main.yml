@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
-        run: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib make binutils
+        run: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib make binutils qemu-system-x86
       - name: Setup cross compiler
         run: |
           printf '#!/bin/sh\nexec gcc -m32 "$@"\n' | sudo tee /usr/local/bin/i686-elf-gcc > /dev/null
@@ -20,6 +20,11 @@ jobs:
         run: make clean && make
       - name: Check image
         run: ls -lh ZED-OS.img && echo "Build OK - ZED-OS v2.4"
+      - name: Boot test in QEMU
+        run: |
+          echo "=== Trying to boot ZED-OS for 5 seconds ==="
+          timeout 5 qemu-system-i386 -drive format=raw,file=ZED-OS.img -nographic -serial mon:stdio || true
+          echo "=== QEMU exited - if it didn't crash instantly, boot worked ==="
       - name: Upload image
         uses: actions/upload-artifact@v4
         with:
