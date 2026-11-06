@@ -1,26 +1,23 @@
-ENTRY(kmain)
+ENTRY(kernel_main)
 SECTIONS {
     . = 0x10000;
-
     .text : {
+        *(.text.kernel_main)
         *(.text)
+        *(.text.*)
     }
-
     .rodata : {
         *(.rodata)
+        *(.rodata.*)
     }
-
     .data : {
         *(.data)
     }
-
     .bss : {
-        *(COMMON)
         *(.bss)
         *(.bss.*)
+        *(COMMON)
     }
-
-    /* Heap starts right after kernel ends */
     /DISCARD/ : {
         *(.comment)
         *(.eh_frame)
