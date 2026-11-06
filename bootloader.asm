@@ -1,4 +1,4 @@
-; ============ ZED-OS v2.7 - bootloader.asm - FIXED DRIVE ============
+; ============ ZED-OS v2.7 - bootloader.asm - LBA FIX ============
 [org 0x7C00]
 [bits 16]
 
@@ -10,23 +10,15 @@ start:
     mov ss, ax
     mov sp, 0x7C00
     sti
-
-    ; SAVE boot drive BIOS gave us - 0x00 = floppy, 0x80 = hard disk
     mov [boot_drive], dl
 
     mov si, msg_boot
     call print16
 
-    ; Load kernel - 64 sectors from sector 2 to 0x10000
-    mov ax, 0x1000
-    mov es, ax
-    xor bx, bx
-    mov ah, 0x02
-    mov al, 64
-    mov ch, 0
-    mov cl, 2
-    mov dh, 0
-    mov dl, [boot_drive]  ; USE SAVED DRIVE, NOT 0x00
+    ; LBA Read - load kernel LBA 1 (sector 2) -> 0x10000
+    mov si, dap
+    mov ah, 0x42
+    mov dl, [boot_drive]
     int 0x13
     jc disk_error
 
@@ -61,6 +53,15 @@ print16:
 boot_drive db 0
 msg_boot db 'ZED-OS v2.7 Booting..', 13, 10, 0
 msg_disk db 'Disk Error!', 13, 10, 0
+
+; Disk Address Packet for int 0x13 AH=0x42
+dap:
+    db 0x10      ; size
+    db 0         ; reserved
+    dw 64        ; sectors to read
+    dw 0x0000    ; offset 0x0000
+    dw 0x1000    ; segment 0x1000 = 0x10000
+    dq 1         ; LBA 1 = sector 2
 
 gdt_start:
     dq 0x0000000000000000
