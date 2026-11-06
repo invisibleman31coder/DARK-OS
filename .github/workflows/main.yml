@@ -8,9 +8,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
-        run: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib make gcc-i686-linux-gnu
+        run: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib make binutils
       - name: Setup cross compiler
-        run: sudo ln -sf /usr/bin/i686-linux-gnu-gcc /usr/local/bin/i686-elf-gcc && sudo ln -sf /usr/bin/i686-linux-gnu-ld /usr/local/bin/i686-elf-ld
+        run: |
+          printf '#!/bin/sh\nexec gcc -m32 "$@"\n' | sudo tee /usr/local/bin/i686-elf-gcc > /dev/null
+          printf '#!/bin/sh\nexec ld -m elf_i386 "$@"\n' | sudo tee /usr/local/bin/i686-elf-ld > /dev/null
+          printf '#!/bin/sh\nexec as --32 "$@"\n' | sudo tee /usr/local/bin/i686-elf-as > /dev/null
+          sudo chmod +x /usr/local/bin/i686-elf-gcc /usr/local/bin/i686-elf-ld /usr/local/bin/i686-elf-as
+          i686-elf-gcc --version
       - name: Build
         run: make clean && make
       - name: Check image
