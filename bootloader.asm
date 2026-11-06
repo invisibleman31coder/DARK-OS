@@ -1,6 +1,8 @@
-; ZED-OS v2.7 BOOTLOADER - Fixed
-[BITS 16]
-[ORG 0x7C00]
+; ============ ZED-OS v2.7 - bootloader.asm - CLEAN WHOLE FILE ============
+; Loads kernel.bin from sector 2 -> 0x10000, then jumps to kernel_main
+[org 0x7C00]
+[bits 16]
+
 start:
     cli
     xor ax, ax
@@ -8,22 +10,33 @@ start:
     mov es, ax
     mov ss, ax
     mov sp, 0x7C00
+    sti
+
+    ; Print "Booting.."
     mov si, msg_boot
     call print16
 
-    ; Load kernel - 100 sectors = 51KB, enough for v2.7
-    ; ES:BX = 0x1000:0x0000 = 0x10000
-    mov ah, 0x02
-    mov al, 100      ; <-- WAS 20, NOW 100
-    mov ch, 0
-    mov cl, 2
-    mov dh, 0
-    mov bx, 0x1000
-    mov es, bx
+    ; Load kernel - 64 sectors (32KB) from sector 2 to 0x10000
+    ; ES:BX = 0x1000:0x0000 = 0x10000 physical
+    mov ax, 0x1000
+    mov es, ax
     xor bx, bx
+    mov ah, 0x02      ; read sectors
+    mov al, 64        ; 64 sectors
+    mov ch, 0         ; cylinder 0
+    mov cl, 2         ; sector 2 (sector 1 = bootloader)
+    mov dh, 0         ; head 0
+    mov dl, 0x00      ; floppy drive
     int 0x13
-    jc disk_error    ; <-- NEW: if carry, disk failed
+    jc disk_error
 
+    ; Enable A20
+    in al, 0x92
+    or al, 2
+    out 0x92, al
+
+    ; Load GDT and switch to protected mode
+    cli
     lgdt [gdt_desc]
     mov eax, cr0
     or eax, 1
@@ -31,39 +44,51 @@ start:
     jmp 0x08:protected_mode
 
 disk_error:
-    mov si, msg_error
+    mov si, msg_disk
     call print16
     hlt
     jmp $
 
 print16:
-    lodsb
-    or al, al
-    jz .done
     mov ah, 0x0E
+.loop:
+    lodsb
+    cmp al, 0
+    je .done
     int 0x10
-    jmp print16
-.done: ret
+    jmp .loop
+.done:
+    ret
 
-[BITS 32]
+msg_boot db 'ZED-OS v2.7 Booting..', 13, 10, 0
+msg_disk db 'Disk Error!', 13, 10, 0
+
+; ---------- GDT ----------
+gdt_start:
+    dq 0x0000000000000000 ; null
+    dq 0x00CF9A000000FFFF ; code: base 0, limit 4GB, exec/read
+    dq 0x00CF92000000FFFF ; data: base 0, limit 4GB, read/write
+gdt_end:
+
+gdt_desc:
+    dw gdt_end - gdt_start - 1
+    dd gdt_start
+
+[bits 32]
 protected_mode:
     mov ax, 0x10
     mov ds, ax
     mov es, ax
+    mov fs, ax
+    mov gs, ax
     mov ss, ax
     mov esp, 0x90000
-    jmp 0x08:0x10000   ; Jump to kernel_main at 0x10000
 
-gdt_start:
-    dq 0
-    dq 0x00CF9A000000FFFF
-    dq 0x00CF92000000FFFF
-gdt_end:
-gdt_desc:
-    dw gdt_end - gdt_start -1
-    dd gdt_start
+    ; Jump to kernel at 0x10000 - this is kernel_main
+    jmp 0x10000
 
-msg_boot db 'ZED-OS v2.7 Booting...',13,10,0
-msg_error db 'Disk Read Error!',13,10,0
-times 510-($-$$) db 0
+    hlt
+    jmp $
+
+times 510 - ($ - $$) db 0
 dw 0xAA55
