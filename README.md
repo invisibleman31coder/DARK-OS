@@ -16,6 +16,47 @@ https://img.shields.io/badge/Assembly-14%25-orange
 - Bare-metal execution
 - QEMU support
 - Automated GitHub Actions builds
+  
+## Why I Built ZED-OS
+
+I didn't build ZED-OS to replace Windows.
+
+I built it to understand how computers actually work — not just how to use them.
+
+Most developers learn how to build apps that run ON an operating system.
+I wanted to learn how to build the operating system itself.
+
+ZED-OS is built from scratch in C and Assembly. No libraries, no shortcuts.
+I wrote the bootloader, the kernel, the memory manager, the keyboard driver,
+and the shell myself.
+
+### What This Project Proves
+
+If you can build an OS, you can learn any technology.
+This project is my proof that I understand:
+
+- How a CPU boots
+- How memory is managed
+- How hardware talks to software
+- How a shell runs commands
+
+### What It Will Help Me Do In Future
+
+This is not just a school project. It's my foundation to become a
+Systems / Embedded / Cybersecurity Engineer.
+
+ZED-OS prepares me for:
+- Embedded & Firmware Development
+- Kernel & Systems Programming
+- Cybersecurity
+- Cloud & DevOps
+- Building lightweight systems for old hardware in South Africa
+
+In the future, I want ZED-OS to become a lightweight system that can
+run on old PCs in schools and small businesses — no heavy Windows,
+no viruses, just boots and works.
+
+ZED-OS is not the end goal. It's the proof that I can build anything.
 
 ## Overview
 
