@@ -8,7 +8,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
-        run: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib make
+        run: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib make gcc-i686-linux-gnu
+      - name: Setup cross compiler
+        run: sudo ln -sf /usr/bin/i686-linux-gnu-gcc /usr/local/bin/i686-elf-gcc && sudo ln -sf /usr/bin/i686-linux-gnu-ld /usr/local/bin/i686-elf-ld
       - name: Build
         run: make clean && make
       - name: Check image
