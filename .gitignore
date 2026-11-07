@@ -5,10 +5,10 @@ __pycache__/
 *.log
 .env
 .groq_cache
-.zed_*
-*.zed
+.dark_*
+*.dark
 vault.json
-Saider.zed
+Saider.dark
 memory/
 vault/
 data/
