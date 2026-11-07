@@ -1,4 +1,4 @@
-name: Build ZED-OS
+name: Build DARK-OS
 
 on: [push]
 
@@ -11,22 +11,22 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib make binutils qemu-system-x86
       - name: Setup cross compiler
         run: |
-          printf '#!/bin/sh\nexec gcc -m32 "$@"\n' | sudo tee /usr/local/bin/i686-elf-gcc > /dev/null
-          printf '#!/bin/sh\nexec ld -m elf_i386 "$@"\n' | sudo tee /usr/local/bin/i686-elf-ld > /dev/null
-          printf '#!/bin/sh\nexec as --32 "$@"\n' | sudo tee /usr/local/bin/i686-elf-as > /dev/null
+          printf '#!/bin/sh\nexec gcc -m32 "$@"\n' | sudo tee /usr/local/bin/i686-elf-gcc
+          printf '#!/bin/sh\nexec ld -m elf_i386 "$@"\n' | sudo tee /usr/local/bin/i686-elf-ld
+          printf '#!/bin/sh\nexec as --32 "$@"\n' | sudo tee /usr/local/bin/i686-elf-as
           sudo chmod +x /usr/local/bin/i686-elf-gcc /usr/local/bin/i686-elf-ld /usr/local/bin/i686-elf-as
           i686-elf-gcc --version
       - name: Build
         run: make clean && make
       - name: Check image
-        run: ls -lh ZED-OS.img && echo "Build OK - ZED-OS v2.4"
+        run: ls -lh DARK-OS.img && echo "Build OK - DARK-OS v2.5 - Powered by SAIDER AI"
       - name: Boot test in QEMU
         run: |
-          echo "=== Trying to boot ZED-OS for 5 seconds ==="
-          timeout 5 qemu-system-i386 -drive format=raw,file=ZED-OS.img -nographic -serial mon:stdio || true
+          echo "=== Trying to boot DARK-OS for 5 seconds ==="
+          timeout 5 qemu-system-i386 -drive format=raw,file=DARK-OS.img -nographic -serial mon:stdio || true
           echo "=== QEMU exited - if it didn't crash instantly, boot worked ==="
       - name: Upload image
         uses: actions/upload-artifact@v4
         with:
-          name: ZED-OS-img
-          path: ZED-OS.img
+          name: DARK-OS-img
+          path: DARK-OS.img
