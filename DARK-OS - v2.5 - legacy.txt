@@ -1,0 +1,38 @@
+
+DARK-OS - v2.5 - legacy.txt
+Powered by SAIDER AI
+
+
+NEW NAME: DARK-OS v2.5
+
+This file is the legacy history of DARK-OS.
+
+ZED-OS was the first name of this project.
+It was built to learn how a computer boots,
+how a kernel works, and how a shell runs commands.
+
+In v2.5 the project was renamed to DARK-OS
+to match its new identity:
+- Dark, lightweight, fast
+- Built from scratch in C and Assembly
+- Powered by SAIDER AI
+
+What stayed the same:
+- Bootloader in Assembly
+- Kernel in C
+- Shell with help, clear, echo, version
+- VGA text mode
+- Keyboard input
+
+What changed in DARK-OS v2.5:
+- New name: DARK-OS
+- New logo: logo.jpg
+- New branding: Powered by SAIDER AI
+- Cleaned up build: DARK-OS.img
+- Goal: Lightweight OS for old PCs in schools
+  and small businesses in South Africa
+
+DARK-OS is not the end goal.
+It's the proof that I can build anything.
+
+- invisibleman31coder
