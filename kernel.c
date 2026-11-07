@@ -1,4 +1,5 @@
-// ============ ZED-OS v2.7 - kernel.c - CLEAN WHOLE FILE ============
+// ============ DARK-OS v2.5 - kernel.c - CLEAN WHOLE FILE ============
+// Powered by SAIDER AI
 // Single file: VGA + Memory + FS + Keyboard + Shell
 
 #define VGA ((volatile unsigned short*)0xB8000)
@@ -72,11 +73,11 @@ struct File files[3];
 
 void fs_init() {
     strcpy(files[0].name, "readme.txt");
-    strcpy(files[0].content, "ZED-OS v2.7 - Memory Manager Added");
+    strcpy(files[0].content, "DARK-OS v2.5 - Memory Manager Added");
     strcpy(files[1].name, "about.txt");
-    strcpy(files[1].content, "Built by ZED - custom x86 OS");
+    strcpy(files[1].content, "Built by invisibleman31coder - custom x86 OS - Powered by SAIDER AI");
     strcpy(files[2].name, "version.txt");
-    strcpy(files[2].content, "ZED-OS v2.7");
+    strcpy(files[2].content, "DARK-OS v2.5");
 }
 void fs_list() {
     for (int i = 0; i < 3; i++) { print_string(files[i].name); print_string("\n"); }
@@ -103,21 +104,21 @@ char get_key() {
 // ---------- SHELL ----------
 void shell() {
     char buffer[128]; int idx = 0;
-    print_string("ZED> ");
+    print_string("DARK> ");
     while (1) {
         char c = get_key();
         if (c == '\n') {
             buffer[idx] = 0; put_char('\n');
             if (strcmp(buffer, "help") == 0) print_string("Commands: help, clear, version, ls, mem, alloc, cat, echo\n");
             else if (strcmp(buffer, "clear") == 0) clear_screen();
-            else if (strcmp(buffer, "version") == 0) print_string("ZED-OS v2.7\n");
+            else if (strcmp(buffer, "version") == 0) print_string("DARK-OS v2.5 - Powered by SAIDER AI\n");
             else if (strcmp(buffer, "ls") == 0) fs_list();
             else if (strcmp(buffer, "mem") == 0) mem_info();
             else if (strcmp(buffer, "alloc") == 0) { unsigned int p = pmm_alloc_page(); print_string("Allocated page: 0x"); print_num(p); print_string("\n"); }
             else if (strncmp(buffer, "cat ", 4) == 0) fs_read(buffer + 4);
             else if (strncmp(buffer, "echo ", 5) == 0) { print_string(buffer + 5); put_char('\n'); }
             else if (buffer[0] != 0) print_string("Unknown: type 'help'\n");
-            idx = 0; print_string("ZED> ");
+            idx = 0; print_string("DARK> ");
         } else if (c == '\b') { if (idx > 0) idx--; }
         else { if (idx < 127) { buffer[idx++] = c; put_char(c); } }
     }
@@ -126,19 +127,4 @@ void shell() {
 // ---------- MAIN ----------
 void kernel_main() {
     cursor_x = 0; cursor_y = 0;
-    total_pages = 0; used_pages = 0; heap_ptr = 0x200000;
-    clear_screen();
-    print_string("======================================\n");
-    print_string("   WELCOME TO ZED-OS v2.7\n");
-    print_string("   Built by InvisibleMan\n");
-    print_string("======================================\n");
-    print_string("\n");
-    pmm_init(128 * 1024);
-    fs_init();
-    print_string("Memory Manager: OK\n");
-    print_string("Paging: OFF\n");
-    print_string("File System: OK\n");
-    print_string("Type 'help' for commands\n");
-    print_string("\n");
-    shell();
-}
+    total_pages = 0; used_pages = 0
