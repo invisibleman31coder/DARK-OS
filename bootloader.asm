@@ -56,4 +56,11 @@ print_string:
     ret
 
 msg_boot db 'DARK-OS v2.5 Booting..', 13, 10, 0
+msg_ok   db 'Kernel loaded. Starting DARK-OS...', 13, 10, 0
+msg_error db 'Disk read error! Press reset.', 13, 10, 0
+
+times 510 - ($ - $$) db 0
+dw 0xAA55
+
+msg_boot db 'DARK-OS v2.5 Booting..', 13, 10, 0
 msg_ok   db 'Kernel loaded. Starting DARK-OS...', 13, 10, 
