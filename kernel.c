@@ -77,4 +77,70 @@ void fs_init() {
     strcpy(files[1].name, "about.txt");
     strcpy(files[1].content, "Built by invisibleman31coder - custom x86 OS - Powered by SAIDER AI");
     strcpy(files[2].name, "version.txt");
-    strcpy(files[2].content, "DARK-OS v
+    strcpy(files[2].content, "DARK-OS v2.5");
+}
+void fs_list() {
+    for (int i = 0; i < 3; i++) { print_string(files[i].name); print_string("\n"); }
+}
+void fs_read(char *name) {
+    for (int i = 0; i < 3; i++) {
+        if (strcmp(files[i].name, name) == 0) { print_string(files[i].content); print_string("\n"); return; }
+    }
+    print_string("File not found\n");
+}
+
+// ---------- KEYBOARD ----------
+char get_key() {
+    unsigned char scancode;
+    while (1) {
+        while (!(port_in(0x64) & 1));
+        scancode = port_in(0x60);
+        if (scancode & 0x80) continue;
+        static const char map[128] = {0,0,'1','2','3','4','5','6','7','8','9','0','-','=','\b',0,'q','w','e','r','t','y','u','i','o','p','[',']','\n',0,'a','s','d','f','g','h','j','k','l',';','\'',0,0,'\\','z','x','c','v','b','n','m',',','.','/',0,0,0,' '};
+        if (scancode < 128 && map[scancode]) return map[scancode];
+    }
+}
+
+// ---------- SHELL ----------
+void shell() {
+    char buffer[128]; int idx = 0;
+    print_string("DARK> ");
+    while (1) {
+        char c = get_key();
+        if (c == '\n') {
+            buffer[idx] = 0; put_char('\n');
+            if (strcmp(buffer, "help") == 0) print_string("Commands: help, clear, version, ls, mem, alloc, cat, echo\n");
+            else if (strcmp(buffer, "clear") == 0) clear_screen();
+            else if (strcmp(buffer, "version") == 0) print_string("DARK-OS v2.5 - Powered by SAIDER AI\n");
+            else if (strcmp(buffer, "ls") == 0) fs_list();
+            else if (strcmp(buffer, "mem") == 0) mem_info();
+            else if (strcmp(buffer, "alloc") == 0) { unsigned int p = pmm_alloc_page(); print_string("Allocated page: 0x"); print_num(p); print_string("\n"); }
+            else if (strncmp(buffer, "cat ", 4) == 0) fs_read(buffer + 4);
+            else if (strncmp(buffer, "echo ", 5) == 0) { print_string(buffer + 5); put_char('\n'); }
+            else if (buffer[0] != 0) print_string("Unknown: type 'help'\n");
+            idx = 0; print_string("DARK> ");
+        } else if (c == '\b') { if (idx > 0) idx--; }
+        else { if (idx < 127) { buffer[idx++] = c; put_char(c); } }
+    }
+}
+
+// ---------- MAIN ----------
+void kernel_main() {
+    cursor_x = 0; cursor_y = 0;
+    total_pages = 0; used_pages = 0; heap_ptr = 0x200000;
+    clear_screen();
+    print_string("======================================\n");
+    print_string("   WELCOME TO DARK-OS v2.5\n");
+    print_string("   Built by InvisibleMan\n");
+    print_string("   Powered by SAIDER AI\n");
+    print_string("======================================\n");
+    print_string("\n");
+    pmm_init(128 * 1024);
+    fs_init();
+    print_string("Memory Manager: OK\n");
+    print_string("Paging: OFF\n");
+    print_string("File System: OK\n");
+    print_string("Type 'help' for commands\n");
+    print_string("\n");
+    shell();
+}
