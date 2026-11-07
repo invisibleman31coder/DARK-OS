@@ -1,4 +1,7 @@
+![DARK-OS Logo](logo.jpg)
+
 # DARK-OS v2.5
+### Powered by SAIDER AI
 
 Lightweight x86 OS in C and Assembly
 
