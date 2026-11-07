@@ -1,4 +1,5 @@
-; ============ ZED-OS v2.7 - bootloader.asm - LBA FIX ============
+; ============ DARK-OS v2.5 - bootloader.asm - LBA FIX ============
+; Powered by SAIDER AI
 [org 0x7C00]
 [bits 16]
 
@@ -51,7 +52,7 @@ print16:
     ret
 
 boot_drive db 0
-msg_boot db 'ZED-OS v2.7 Booting..', 13, 10, 0
+msg_boot db 'DARK-OS v2.5 Booting..', 13, 10, 0
 msg_disk db 'Disk Error!', 13, 10, 0
 
 ; Disk Address Packet for int 0x13 AH=0x42
